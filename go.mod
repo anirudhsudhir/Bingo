@@ -1,3 +1,3 @@
-module github.com/anirudhsudhir/bingo
+module github.com/anirudhsudhir/Bingo
 
 go 1.21.6
