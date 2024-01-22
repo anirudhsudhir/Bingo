@@ -24,19 +24,10 @@ func main() {
 		errorLogger: errorLogger,
 	}
 
-	mux := http.NewServeMux()
-
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snip/view", app.viewSnip)
-	mux.HandleFunc("/snip/create", app.createSnip)
-
 	server := &http.Server{
 		Addr:     *addr,
-		Handler:  mux,
 		ErrorLog: errorLogger,
+		Handler:  app.routes(),
 	}
 
 	infoLogger.Printf("Listening on port %s", *addr)
