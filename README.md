@@ -6,14 +6,23 @@ Built while following the "Let's Go" book.
 
 ## Usage
 
-Clone the repository and build the application
+1. Clone the repository and build the application
 
 ```bash
 cd bingo
 go build ./cmd/web
 ```
 
-Run the pastebin and open localhost:4000 in the browser
+2. Add the MySQL database user and password to a new secrets.env file
+
+```text
+Sample secrets.env
+
+DBuser = "user"
+DBpass = "pass"
+```
+
+3. Run the pastebin and open localhost:4000 in the browser
 
 ```bash
 ./web
@@ -31,4 +40,10 @@ Note: All flags can be viewed by invoking Go's built-in help flag
 
 ```bash
 ./web -addr=":5000"
+```
+
+2. dsn: Sets the data source name of the MySQL database (defaults to the user and password set in secrets.env)
+
+```bash
+./web -dsn="[user]:[password]@/bingo?parseTime=true"
 ```
