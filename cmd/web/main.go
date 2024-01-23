@@ -12,22 +12,19 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/anirudhsudhir/Bingo/internal/models"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type application struct {
 	infoLogger  *log.Logger
 	errorLogger *log.Logger
+	snipModel   *models.SnipModel
 }
 
 func main() {
 	infoLogger := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLogger := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-
-	app := &application{
-		infoLogger:  infoLogger,
-		errorLogger: errorLogger,
-	}
 
 	addr := flag.String("addr", ":4000", "HTTP Network Address")
 	defaultDsn, err := parseDBCredentials()
@@ -42,6 +39,12 @@ func main() {
 		errorLogger.Fatal(err)
 	}
 	defer db.Close()
+
+	app := &application{
+		infoLogger:  infoLogger,
+		errorLogger: errorLogger,
+		snipModel:   &models.SnipModel{DB: db},
+	}
 
 	server := &http.Server{
 		Addr:     *addr,
