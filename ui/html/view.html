@@ -1,0 +1,23 @@
+{{define "title"}} Snip {{.Snip.ID}} {{end}}
+
+{{define "main"}}
+    {{with .Snip}}
+        <div class="snip">
+            <div class="metadata">
+                <div class="title">{{.Title}}</div>
+                <div class="id">#{{.ID}}</div>
+            </div>
+            <div class="content">
+                {{.Content}}
+            </div>
+            <div class="timestamps">
+                <div class="created">
+                    Created on: {{.Created}}
+                </div>
+                <div class="expired">
+                    Expires on: {{.Expires}}
+                </div>
+            </div>
+        </div>
+    {{end}}
+{{end}}

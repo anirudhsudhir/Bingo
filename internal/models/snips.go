@@ -40,7 +40,7 @@ func (m *SnipModel) ReadSnip(id int) (*Snip, error) {
 	row := m.DB.QueryRow(stmt, id)
 
 	snip := &Snip{}
-	err := row.Scan(&snip.ID, &snip.Title, &snip.Content, &snip.Content, &snip.Expires)
+	err := row.Scan(&snip.ID, &snip.Title, &snip.Content, &snip.Created, &snip.Expires)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord

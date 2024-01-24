@@ -1,6 +1,16 @@
 {{define "title"}}Home{{end}}
 
 {{define "main"}}
-<h2>Latest Snips</h2>
-<p>Currently empty</p>
+    {{if .Snips}}
+        <div class="preview-container">
+            <h2>
+                Latest Snips
+            </h2>
+            {{range .Snips}}
+                {{template "preview" .}}
+            {{end}}
+        </div>
+    {{else}}
+        <h3>No snips have been added yet!</h3>
+    {{end}}
 {{end}}
