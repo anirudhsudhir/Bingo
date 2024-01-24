@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -19,26 +18,11 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	rows, err := app.snipModel.GetLatestSnips()
 	if err != nil {
 		app.serverError(w, err)
-	}
-	data := &templateData{Snips: rows}
-
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/home.html",
-		"./ui/html/partials/preview.html",
-		"./ui/html/partials/nav.html"}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
 		return
 	}
-
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	data := newTemplateData()
+	data.Snips = rows
+	app.renderTemplate(w, "home.html", data)
 }
 
 func (app *application) viewSnip(w http.ResponseWriter, r *http.Request) {
@@ -52,28 +36,16 @@ func (app *application) viewSnip(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.notFound(w)
+			return
 		} else {
 			app.serverError(w, err)
+			return
 		}
 	}
 
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/partials/nav.html",
-		"./ui/html/view.html",
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	data := &templateData{Snip: snip}
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	data := newTemplateData()
+	data.Snip = snip
+	app.renderTemplate(w, "view.html", data)
 }
 
 func (app *application) createSnip(w http.ResponseWriter, r *http.Request) {

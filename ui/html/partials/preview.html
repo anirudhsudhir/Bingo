@@ -1,13 +1,17 @@
 {{define "preview"}}
 <div class="preview">
-    <div class="id">
-        #{{.ID}}
-    </div>
-    <div class="title">
-        {{.Title}}
+    <div class="id-title">
+        <div class="id">
+            #{{.ID}}
+        </div>
+        <div class="title">
+            <a href="/snip/view?id={{.ID}}">
+                {{.Title}}
+            </a>
+        </div>
     </div>
     <div class="created">
-        {{.Created}}
+        {{humanDate .Created}}
     </div>
 </div>
 {{end}}

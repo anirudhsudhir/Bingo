@@ -6,6 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -17,9 +18,10 @@ import (
 )
 
 type application struct {
-	infoLogger  *log.Logger
-	errorLogger *log.Logger
-	snipModel   *models.SnipModel
+	infoLogger    *log.Logger
+	errorLogger   *log.Logger
+	snipModel     *models.SnipModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -40,10 +42,16 @@ func main() {
 	}
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		errorLogger.Fatal(err)
+	}
+
 	app := &application{
-		infoLogger:  infoLogger,
-		errorLogger: errorLogger,
-		snipModel:   &models.SnipModel{DB: db},
+		infoLogger:    infoLogger,
+		errorLogger:   errorLogger,
+		snipModel:     &models.SnipModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	server := &http.Server{

@@ -55,6 +55,7 @@ main {
 
 main .snip {
     width: 90%;
+    margin: 2rem;
     border: 0.1rem white solid;
     border-radius: 0.5rem;
     display: flex;
@@ -96,6 +97,22 @@ main .snip {
     display: flex;
     justify-content: space-between;
     font-size: 1.2rem;
+}
+
+.preview .id-title {
+    display: flex;
+}
+
+.preview .id {
+    min-width: 4rem;
+}
+
+.preview .title a {
+    text-decoration: underline;
+}
+
+.preview a:hover , nav a:hover{
+    color: darkgray;
 }
 
 img {
