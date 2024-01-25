@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/anirudhsudhir/Bingo/internal/models"
+	"github.com/anirudhsudhir/Bingo/internal/validators"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -18,7 +19,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 	data := newTemplateData()
 	data.Snips = rows
-	app.renderTemplate(w, "home.html", data)
+	app.renderTemplate(w, "home.html", http.StatusOK, data)
 }
 
 func (app *application) viewSnip(w http.ResponseWriter, r *http.Request) {
@@ -42,19 +43,45 @@ func (app *application) viewSnip(w http.ResponseWriter, r *http.Request) {
 
 	data := newTemplateData()
 	data.Snip = snip
-	app.renderTemplate(w, "view.html", data)
+	app.renderTemplate(w, "view.html", http.StatusOK, data)
 }
 
 func (app *application) createSnip(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Will display html form soon"))
+	data := &templateData{Form: FormData{Expires: 365}}
+	app.renderTemplate(w, "create.html", http.StatusOK, data)
 }
 
 func (app *application) createSnipPost(w http.ResponseWriter, r *http.Request) {
-	title := "Test snip 1"
-	content := "content of test snip"
-	expires := 7
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
-	id, err := app.snipModel.InsertSnip(title, content, expires)
+	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	formData := FormData{
+		Title:   r.PostForm.Get("title"),
+		Content: r.PostForm.Get("content"),
+		Expires: expires,
+	}
+
+	formData.ValidateElement(validators.NoContent(formData.Title), "title", "The title field cannot be empty")
+	formData.ValidateElement(validators.NoContent(formData.Content), "content", "The content field cannot be empty")
+	formData.ValidateElement(validators.MaxLen(formData.Title, 100), "title", "The title field cannot contain more than 100 characters")
+	formData.ValidateElement(validators.AllowedValues(formData.Expires, 1, 7, 365), "expires", "Expiry duration must be 1, 7 or 365 days")
+
+	if !formData.ValidForm() {
+		data := &templateData{Form: formData}
+		app.renderTemplate(w, "create.html", http.StatusUnprocessableEntity, data)
+		return
+	}
+
+	id, err := app.snipModel.InsertSnip(formData.Title, formData.Content, formData.Expires)
 	if err != nil {
 		app.serverError(w, err)
 		return

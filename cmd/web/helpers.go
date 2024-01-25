@@ -5,8 +5,16 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
-	"time"
+
+	"github.com/anirudhsudhir/Bingo/internal/validators"
 )
+
+type FormData struct {
+	Title   string
+	Content string
+	Expires int
+	validators.Validator
+}
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
@@ -27,7 +35,7 @@ func (app *application) notFoundHandler(w http.ResponseWriter, r *http.Request) 
 	app.notFound(w)
 }
 
-func (app *application) renderTemplate(w http.ResponseWriter, page string, templateData *templateData) {
+func (app *application) renderTemplate(w http.ResponseWriter, page string, status int, templateData *templateData) {
 	ts, found := app.templateCache[page]
 	if !found {
 		err := fmt.Errorf("no template present for %s page", page)
@@ -36,7 +44,7 @@ func (app *application) renderTemplate(w http.ResponseWriter, page string, templ
 	}
 
 	buf := &bytes.Buffer{}
-
+	w.WriteHeader(status)
 	err := ts.ExecuteTemplate(buf, "base", templateData)
 	if err != nil {
 		app.serverError(w, err)
@@ -47,7 +55,5 @@ func (app *application) renderTemplate(w http.ResponseWriter, page string, templ
 }
 
 func newTemplateData() *templateData {
-	return &templateData{
-		CurrentYear: time.Now().Year(),
-	}
+	return &templateData{}
 }

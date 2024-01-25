@@ -1,0 +1,34 @@
+{{define "title"}}Create a Snip{{end}}
+{{define "main"}}
+<form action='/snip/create' method='POST'>
+    <div class="form-child">
+        <label>Title</label>
+        {{with .Form.FormErrors.title}}
+        <label class="error">{{.}}</label>
+        {{end}}
+        <input class="title" type='text' name='title' value="{{.Form.Title}}">
+    </div>
+    <div class="form-child">
+        <label>Content</label>
+        {{with .Form.FormErrors.content}}
+        <label class="error">{{.}}</label>
+        {{end}}
+        <textarea class="content" name='content'>{{.Form.Content}}</textarea>
+    </div>
+    <div class="form-child">
+        <label>Delete in</label>
+        {{with .Form.FormErrors.expires}}
+        <label class="error">{{.}}</label>
+        {{end}}
+        <div class="options">
+            <input type='radio' name='expires' value='365' {{if (eq .Form.Expires 365)}}checked{{end}}> One Year
+            <input type='radio' name='expires' value='7' {{if (eq .Form.Expires 7)}}checked{{end}}> One Week
+            <input type='radio' name='expires' value='1' {{if (eq .Form.Expires 1)}}checked{{end}}> One Day
+        </div>
+    </div>
+    <div class="form-child">
+        <input class="submit-button" type='submit' value='Publish snippet'>
+    </div>
+</form>
+
+{{end}}

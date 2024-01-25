@@ -10,11 +10,9 @@ func (app *application) routes() http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Get("/", app.home)
-	mux.Route("/snip", func(r chi.Router) {
-		mux.Get("/snip/create", app.createSnip)
-		mux.Post("/snip/create", app.createSnipPost)
-		mux.Get("/snip/view/{id}", app.viewSnip)
-	})
+	mux.Get("/snip/create", app.createSnip)
+	mux.Post("/snip/create", app.createSnipPost)
+	mux.Get("/snip/view/{id}", app.viewSnip)
 	mux.HandleFunc("/*", app.notFoundHandler)
 
 	fileserver := http.FileServer(http.Dir("./ui/static/"))
