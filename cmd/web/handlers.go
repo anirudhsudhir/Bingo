@@ -7,14 +7,10 @@ import (
 	"strconv"
 
 	"github.com/anirudhsudhir/Bingo/internal/models"
+	"github.com/go-chi/chi/v5"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
-
 	rows, err := app.snipModel.GetLatestSnips()
 	if err != nil {
 		app.serverError(w, err)
@@ -26,7 +22,8 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) viewSnip(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	idr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idr)
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -49,12 +46,10 @@ func (app *application) viewSnip(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createSnip(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
+	w.Write([]byte("Will display html form soon"))
+}
 
+func (app *application) createSnipPost(w http.ResponseWriter, r *http.Request) {
 	title := "Test snip 1"
 	content := "content of test snip"
 	expires := 7
@@ -65,5 +60,5 @@ func (app *application) createSnip(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/snip/view?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/snip/view/%d", id), http.StatusSeeOther)
 }

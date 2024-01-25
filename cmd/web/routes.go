@@ -1,16 +1,24 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+)
 
 func (app *application) routes() http.Handler {
-	mux := http.NewServeMux()
+	mux := chi.NewRouter()
 
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snip/view", app.viewSnip)
-	mux.HandleFunc("/snip/create", app.createSnip)
+	mux.Get("/", app.home)
+	mux.Route("/snip", func(r chi.Router) {
+		mux.Get("/snip/create", app.createSnip)
+		mux.Post("/snip/create", app.createSnipPost)
+		mux.Get("/snip/view/{id}", app.viewSnip)
+	})
+	mux.HandleFunc("/*", app.notFoundHandler)
 
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	fileserver := http.FileServer(http.Dir("./ui/static/"))
+	mux.Method(http.MethodGet, "/static/*", http.StripPrefix("/static", fileserver))
 
 	return app.recoverPanic(app.logRequests(secureHeaders(mux)))
 }

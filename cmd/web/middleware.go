@@ -29,7 +29,12 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				w.Header().Set("Connection", "close")
-				app.serverError(w, fmt.Errorf("%s", err))
+				err, ok := err.(string)
+				if ok {
+					app.serverError(w, fmt.Errorf("%s", err))
+				} else {
+					app.serverError(w, fmt.Errorf("unable to parse panic type"))
+				}
 				return
 			}
 		}()

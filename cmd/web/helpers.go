@@ -23,6 +23,10 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
+func (app *application) notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	app.notFound(w)
+}
+
 func (app *application) renderTemplate(w http.ResponseWriter, page string, templateData *templateData) {
 	ts, found := app.templateCache[page]
 	if !found {
