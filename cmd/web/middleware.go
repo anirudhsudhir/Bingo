@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 func secureHeaders(next http.Handler) http.Handler {
@@ -38,6 +39,17 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 				return
 			}
 		}()
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) filterFileserverRequests(next http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, "/") {
+			app.notFound(w)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }

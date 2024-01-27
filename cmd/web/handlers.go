@@ -17,7 +17,11 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	data := newTemplateData()
+	data, err := app.newTemplateData(w, r)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 	data.Snips = rows
 	app.renderTemplate(w, "home.html", http.StatusOK, data)
 }
@@ -41,7 +45,12 @@ func (app *application) viewSnip(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	data := newTemplateData()
+	data, err := app.newTemplateData(w, r)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
 	data.Snip = snip
 	app.renderTemplate(w, "view.html", http.StatusOK, data)
 }
@@ -52,22 +61,11 @@ func (app *application) createSnip(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createSnipPost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	formData := &FormData{}
+	err := app.parseForm(formData, r)
 	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
+		app.serverError(w, err)
 		return
-	}
-
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
-	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	formData := FormData{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
 	}
 
 	formData.ValidateElement(validators.NoContent(formData.Title), "title", "The title field cannot be empty")
@@ -82,6 +80,18 @@ func (app *application) createSnipPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := app.snipModel.InsertSnip(formData.Title, formData.Content, formData.Expires)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	session, err := app.sessionStore.Get(r, "session")
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	session.AddFlash("The snip has been added successfully!")
+	err = session.Save(r, w)
 	if err != nil {
 		app.serverError(w, err)
 		return

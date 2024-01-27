@@ -57,6 +57,11 @@ main {
     gap: 1rem;
 }
 
+.snip-statemessage {
+    padding: 2rem 1rem 0rem;
+    font-size: 1.5rem;
+}
+
 main .snip {
     width: 90%;
     margin: 2rem;
@@ -95,6 +100,11 @@ main .snip {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+.no-snips-message {
+    margin-top: 4rem;
+    font-size: 2rem;
 }
 
 .preview {

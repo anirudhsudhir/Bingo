@@ -1,6 +1,9 @@
 {{define "title"}} Snip {{.Snip.ID}} {{end}}
 
 {{define "main"}}
+{{with .Flash}}
+<div class="snip-statemessage">{{.}}</div>
+{{end}}
 {{with .Snip}}
 <div class="snip">
     <div class="metadata">

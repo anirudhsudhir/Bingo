@@ -47,3 +47,8 @@ Note: All flags can be viewed by invoking Go's built-in help flag
 ```bash
 ./web -dsn="[user]:[password]@/bingo?parseTime=true"
 ```
+
+## Note
+
+A session key will be generated and stored in secrets.env when the application is run for the first time. This will be used to sign cookies created by the pastebin.
+To create a new session key, delete the `SessionKey = "randomsessionkey"` entry in secrets.env and clear the "session" cookie stored in the browser.

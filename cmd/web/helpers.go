@@ -1,7 +1,8 @@
 package main
 
 import (
-	"bytes"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -10,10 +11,10 @@ import (
 )
 
 type FormData struct {
-	Title   string
-	Content string
-	Expires int
-	validators.Validator
+	Title                string `schema:"title"`
+	Content              string `schema:"content"`
+	Expires              int    `schema:"expires"`
+	validators.Validator `schema:"-"`
 }
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -35,25 +36,25 @@ func (app *application) notFoundHandler(w http.ResponseWriter, r *http.Request) 
 	app.notFound(w)
 }
 
-func (app *application) renderTemplate(w http.ResponseWriter, page string, status int, templateData *templateData) {
-	ts, found := app.templateCache[page]
-	if !found {
-		err := fmt.Errorf("no template present for %s page", page)
-		app.serverError(w, err)
-		return
-	}
-
-	buf := &bytes.Buffer{}
-	w.WriteHeader(status)
-	err := ts.ExecuteTemplate(buf, "base", templateData)
+func (app *application) parseForm(dst any, r *http.Request) error {
+	err := r.ParseForm()
 	if err != nil {
-		app.serverError(w, err)
-		return
+		return err
 	}
 
-	buf.WriteTo(w)
+	err = app.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func newTemplateData() *templateData {
-	return &templateData{}
+func generateSessionKey(length int) (key string, err error) {
+	randomBytes := make([]byte, length)
+	_, err = rand.Read(randomBytes)
+	if err != nil {
+		return "", err
+	}
+	key = base64.StdEncoding.EncodeToString(randomBytes)
+	return key, nil
 }

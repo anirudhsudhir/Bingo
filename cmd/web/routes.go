@@ -16,7 +16,7 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("/*", app.notFoundHandler)
 
 	fileserver := http.FileServer(http.Dir("./ui/static/"))
-	mux.Method(http.MethodGet, "/static/*", http.StripPrefix("/static", fileserver))
+	mux.Method(http.MethodGet, "/static/*", http.StripPrefix("/static", app.filterFileserverRequests(fileserver)))
 
 	return app.recoverPanic(app.logRequests(secureHeaders(mux)))
 }
