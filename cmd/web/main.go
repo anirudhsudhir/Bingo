@@ -69,7 +69,7 @@ func main() {
 	}
 
 	infoLogger.Printf("Listening on port %s", *addr)
-	err = server.ListenAndServe()
+	err = server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	if err != nil {
 		errorLogger.Fatal(err)
 	}
